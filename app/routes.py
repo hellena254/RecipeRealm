@@ -38,3 +38,39 @@ def add_recipe():
     db.session.add(new_recipe)
     db.session.commit()
     return jsonify({'message': 'Recipe added successfully!'}), 201
+
+
+@app.route('/api/recipes/<int:recipe_id>', methods=['PUT'])
+def update_recipe(recipe_id):
+    """Update an existing recipe"""
+    recipe = Recipe.query.get_or_404(recipe_id)
+
+    # extract updated data from request body
+    data = request.json
+
+    # update recipe data
+    if 'title' in data:
+        recipe.title = data['title']
+    if 'description' in data:
+        recipe.description = data['description']
+    if 'ingredients' in data:
+        recipe.ingredients = data['ingredients']
+    if 'instructions' in data:
+        recipe.instructions = data['instructions']
+
+    # commit changes to the database
+    db.session.commit()
+
+    return jsonify({'message': 'Recipe updated successfully'})
+
+
+@app.route('/api/recipes/<int:recipe_id>', methods=['DELETE'])
+def delete_recipe(recipe_id):
+    """Delete recipe"""
+    recipe = Recipe.query.get_or_404(recipe_id)
+
+    # delete the recipe from the database
+    db.session.delete(recipe)
+    db.session.commit()
+
+    return jsonify({'message': 'Recipe deleted successfully'})
