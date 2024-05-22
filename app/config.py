@@ -7,5 +7,5 @@ class Config:
     """Configuration class for the Flask application."""
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'DATABASE_URL',
-        'mysql+mysqlconnector://user:password@localhost/reciperealm')
+        'mysql+mysqlconnector://reciperealm_user:recip3r3alm@localhost/reciperealm')
     SQLALCHEMY_TRACK_MODIFICATIONS = False

@@ -13,8 +13,8 @@ def create_app():
 
     with app.app_context():
         from app import routes
-        from models.user import User
-        from models.recipe import Recipe
+        from app.models.user import User
+        from app.models.recipe import Recipe
         db.create_all()
 
     return app
