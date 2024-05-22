@@ -2,9 +2,10 @@
 """define the routes for handling recipe-related requests"""
 
 from flask import request, jsonify
-from . import db
-from .models import User, Recipe
-from . import create_app
+from app import db, app
+from models.user import User
+from models.recipe import Recipe
+from app import create_app
 
 
 app = create_app()

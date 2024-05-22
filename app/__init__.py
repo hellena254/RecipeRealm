@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from flask import Flas
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -12,8 +12,9 @@ def create_app():
     db.init_app(app)
 
     with app.app_context():
-        from . import routes
-        from .models import user, recipe
+        from app import routes
+        from models.user import User
+        from models.recipe import Recipe
         db.create_all()
 
     return app

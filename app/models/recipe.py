@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """Defining the recipe database model"""
-from . import db
+from app import db
 
 
 class User(db.Model):
