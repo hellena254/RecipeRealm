@@ -1,31 +1,34 @@
 #!/usr/bin/python3
-"""define the routes for handling recipe-related requests"""
+"""
+Define the routes for handling recipe-related requests.
+"""
 
-from flask import request, jsonify
+from flask import Flask, request, jsonify
 from app import db, create_app
 from app.models.recipe import Recipe
-
+from app.models.rating import Rating
 
 app = create_app()
 
 
 @app.route('/api/recipes', methods=['GET'])
 def get_recipes():
-    """Get all recipes"""
+    """
+    GET endpoint to retrieve all recipes.
+    Returns:
+        JSON: List of all recipes in the database.
+    """
     recipes = Recipe.query.all()
-    return jsonify([{
-        'id': recipe.id,
-        'title': recipe.title,
-        'description': recipe.description,
-        'ingredients': recipe.ingredients,
-        'instructions': recipe.instructions,
-        'author': recipe.author.username
-    } for recipe in recipes])
+    return jsonify([recipe.to_dict() for recipe in recipes]), 200
 
 
 @app.route('/api/recipes', methods=['POST'])
 def add_recipe():
-    """Add a new recipe"""
+    """
+    POST endpoint to add a new recipe.
+    Returns:
+        JSON: The newly created recipe.
+    """
     data = request.get_json()
     new_recipe = Recipe(
         title=data['title'],
@@ -36,18 +39,23 @@ def add_recipe():
     )
     db.session.add(new_recipe)
     db.session.commit()
-    return jsonify({'message': 'Recipe added successfully!'}), 201
+    return jsonify(new_recipe.to_dict()), 201
 
 
 @app.route('/api/recipes/<int:recipe_id>', methods=['PUT'])
 def update_recipe(recipe_id):
-    """Update an existing recipe"""
+    """
+    PUT endpoint to update an existing recipe.
+    Args:
+        recipe_id (int): ID of the recipe to be updated.
+    Returns:
+        JSON: The updated recipe.
+    """
     recipe = Recipe.query.get_or_404(recipe_id)
 
-    # extract updated data from request body
-    data = request.json
-
-    # update recipe data
+    data = request.get_json()
+    
+    # Update recipe data
     if 'title' in data:
         recipe.title = data['title']
     if 'description' in data:
@@ -57,19 +65,44 @@ def update_recipe(recipe_id):
     if 'instructions' in data:
         recipe.instructions = data['instructions']
 
-    # commit changes to the database
     db.session.commit()
-
-    return jsonify({'message': 'Recipe updated successfully'})
+    return jsonify(recipe.to_dict()), 200
 
 
 @app.route('/api/recipes/<int:recipe_id>', methods=['DELETE'])
 def delete_recipe(recipe_id):
-    """Delete recipe"""
+    """
+    DELETE endpoint to delete an existing recipe.
+    Args:
+        recipe_id (int): ID of the recipe to be deleted.
+    Returns:
+        JSON: Message indicating the deletion status.
+    """
     recipe = Recipe.query.get_or_404(recipe_id)
-
-    # delete the recipe from the database
     db.session.delete(recipe)
     db.session.commit()
+    return jsonify({"message": "Recipe deleted successfully."}), 200
 
-    return jsonify({'message': 'Recipe deleted successfully'})
+
+@app.route('/api/recipes/<int:recipe_id>/rate', methods=['POST'])
+def rate_recipe(recipe_id):
+    """
+    POST endpoint to rate a recipe.
+    Args:
+        recipe_id (int): ID of the recipe to be rated.
+    Returns:
+        JSON: The newly created rating.
+    """
+    data = request.get_json()
+    new_rating = Rating(
+        user_id=data['user_id'],
+        recipe_id=recipe_id,
+        rating=data['rating'],
+        comment=data.get('comment')
+    )
+    db.session.add(new_rating)
+    db.session.commit()
+    return jsonify(new_rating.to_dict()), 201
+
+if __name__ == '__main__':
+    app.run(debug=True)
